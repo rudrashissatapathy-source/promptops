@@ -76,6 +76,13 @@ class ChaosMockAdapter(BaseModelAdapter):
                     "format": "hands-on",
                     "speaker_role": "Lead Systems Architect",
                     "deliverables": ["Sample Test Harness", "Docker Compose Sandbox"]
+                },
+                {
+                    "time_slot": "14:00 - 15:30 PM",
+                    "session_title": "Panel: Scalable Telemetry, Cost Accounting, and Policy Routing",
+                    "format": "panel",
+                    "speaker_role": "VP of Engineering & Industry Panelists",
+                    "deliverables": ["SLO Benchmark Report", "Session Recording"]
                 }
             ],
             "action_items": [
@@ -93,6 +100,14 @@ class ChaosMockAdapter(BaseModelAdapter):
                     "owner_role": "Community Coordinator",
                     "priority": "high",
                     "due_relative_days": -3,
+                    "dependencies": ["TASK-01"]
+                },
+                {
+                    "id": "TASK-03",
+                    "task": "Verify AV recording setup and backup streaming link",
+                    "owner_role": "Media Operations",
+                    "priority": "medium",
+                    "due_relative_days": -1,
                     "dependencies": ["TASK-01"]
                 }
             ],

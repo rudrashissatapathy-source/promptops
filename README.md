@@ -4,7 +4,7 @@
 [![CI/CD](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/ci.yml/badge.svg)](https://github.com/rudrashissatapathy-source/promptops/actions)
 [![24/7 Keep-Alive](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/keep_alive.yml/badge.svg)](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/keep_alive.yml)
 
-> **Live Streamlit Studio:** [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=rudrashissatapathy-source/promptops&branch=main&mainModule=streamlit_app.py) &bull; **Direct App:** `https://promptops.streamlit.app`
+> **Live Streamlit Studio:** [https://rudrashissatapathy-source-promptops-streamlit-app-z0le9m.streamlit.app](https://rudrashissatapathy-source-promptops-streamlit-app-z0le9m.streamlit.app)
 
 > **Build a controlled generation platform, not a single prompt demo.**
 

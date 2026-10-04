@@ -18,6 +18,8 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 # Telemetry DB / Log path
 TELEMETRY_DB_PATH = DATA_DIR / "telemetry.db"
 RUNS_JSONL_PATH = DATA_DIR / "runs.jsonl"
+TEST_CASES_FILE = TEST_CASES_DIR / "50_benchmark_cases.json"
+BENCHMARK_RESULTS_FILE = DATA_DIR / "benchmark_results.json"
 
 # Execution & Resilience Defaults
 DEFAULT_TIMEOUT_SECONDS = 15.0

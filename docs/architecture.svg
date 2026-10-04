@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#07090e" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: 'Outfit', sans-serif; font-weight: 700; fill: #ffffff; font-size: 26px; }
+    .subtitle { font-family: 'Inter', sans-serif; font-size: 13px; fill: #94a3b8; }
+    .box-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; fill: #f8fafc; }
+    .box-sub { font-family: 'Inter', sans-serif; font-size: 11px; fill: #94a3b8; }
+    .code-txt { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #38bdf8; }
+    .flow-line { stroke: #334155; stroke-width: 2; stroke-dasharray: 4,4; }
+    .flow-line-active { stroke: #6366f1; stroke-width: 2.5; }
+    .badge-txt { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="640" rx="16" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="2" />
+
+  <!-- Header Banner -->
+  <rect x="40" y="30" width="1120" height="70" rx="12" fill="#111827" stroke="#1f293d" stroke-width="1.5" />
+  <circle cx="75" cy="65" r="18" fill="url(#primaryGrad)" filter="url(#glow)" />
+  <path d="M72 58 L66 65 L72 65 L71 72 L78 63 L72 63 Z" fill="#ffffff" />
+  <text x="110" y="60" class="title">PROMPTOPS ARCHITECTURE</text>
+  <text x="110" y="80" class="subtitle">Controlled LLM Generation Platform &bull; Provider-Agnostic &bull; 3-Tier Self-Healing Pipeline</text>
+
+  <!-- Client / Ingestion Layer -->
+  <g transform="translate(40, 130)">
+    <rect width="200" height="470" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+    <text x="20" y="35" class="box-title" fill="#a5b4fc">INGESTION &amp; UI</text>
+    <text x="20" y="52" class="box-sub">Dual Comparative Studio</text>
+
+    <!-- UI Box -->
+    <rect x="15" y="70" width="170" height="85" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="95" class="box-title" font-size="13">Dual Studio UI</text>
+    <text x="25" y="112" class="box-sub">Side-by-Side Playground</text>
+    <text x="25" y="130" class="code-txt">SSE Streaming</text>
+
+    <!-- Brief Box -->
+    <rect x="15" y="170" width="170" height="85" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="195" class="box-title" font-size="13">Messy Input Brief</text>
+    <text x="25" y="212" class="box-sub">Transcripts, Slack notes,</text>
+    <text x="25" y="230" class="box-sub">bulleted instructions</text>
+
+    <!-- Regression Runner -->
+    <rect x="15" y="270" width="170" height="95" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="295" class="box-title" font-size="13">50-Case Matrix</text>
+    <text x="25" y="312" class="box-sub">200 Automated Runs</text>
+    <text x="25" y="330" class="code-txt">4-Way Evaluation</text>
+    <text x="25" y="348" class="code-txt">Failure Log Tracing</text>
+
+    <!-- SHA-256 Cache -->
+    <rect x="15" y="380" width="170" height="75" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+    <text x="25" y="405" class="box-title" font-size="13" fill="#6ee7b7">Exact SHA-256 Cache</text>
+    <text x="25" y="422" class="box-sub">Sub-millisecond hit</text>
+    <text x="25" y="438" class="code-txt" fill="#34d399">$0.00 Incremental Cost</text>
+  </g>
+
+  <!-- Central Orchestration: Router & Registry -->
+  <g transform="translate(270, 130)">
+    <rect width="230" height="470" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+    <text x="20" y="35" class="box-title" fill="#a5b4fc">ORCHESTRATION</text>
+    <text x="20" y="52" class="box-sub">Router &amp; Immutable Registry</text>
+
+    <!-- Router -->
+    <rect x="15" y="70" width="200" height="150" rx="8" fill="#1e293b" stroke="url(#primaryGrad)" stroke-width="1.5" />
+    <text x="25" y="95" class="box-title" font-size="14">Smart Policy Router</text>
+    <text x="25" y="115" class="box-sub">&bull; SPEED_FIRST (Low latency)</text>
+    <text x="25" y="135" class="box-sub">&bull; QUALITY_FIRST (Frontier tier)</text>
+    <text x="25" y="155" class="box-sub">&bull; COST_OPTIMIZED (Thresholding)</text>
+    <text x="25" y="175" class="box-sub">&bull; CASCADE_FALLBACK</text>
+    <text x="25" y="195" class="code-txt">Circuit Breaker &lt;3.0s</text>
+
+    <!-- Prompt Registry -->
+    <rect x="15" y="240" width="200" height="215" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="265" class="box-title" font-size="14">Prompt Registry</text>
+    <text x="25" y="285" class="box-sub">Versioned YAML Stores</text>
+    
+    <rect x="25" y="300" width="180" height="40" rx="4" fill="#111827" stroke="#374151" />
+    <text x="35" y="320" class="code-txt">v1.0.0 (Zero-Shot)</text>
+    <text x="35" y="333" class="box-sub">Baseline prompt</text>
+
+    <rect x="25" y="350" width="180" height="45" rx="4" fill="#111827" stroke="#6366f1" />
+    <text x="35" y="370" class="code-txt" fill="#a5b4fc">v2.0.0 (Few-Shot)</text>
+    <text x="35" y="385" class="box-sub">Strict rules + bounds</text>
+
+    <text x="25" y="420" class="code-txt">Unified Diff Engine</text>
+    <text x="25" y="438" class="box-sub">Tracks additions &amp; tokens</text>
+  </g>
+
+  <!-- Adapter Layer -->
+  <g transform="translate(530, 130)">
+    <rect width="210" height="470" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+    <text x="20" y="35" class="box-title" fill="#a5b4fc">ADAPTER LAYER</text>
+    <text x="20" y="52" class="box-sub">Provider-Agnostic Core</text>
+
+    <!-- Gemini -->
+    <rect x="15" y="70" width="180" height="85" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="95" class="box-title" font-size="13">GeminiAdapter</text>
+    <text x="25" y="112" class="box-sub">Official google-genai</text>
+    <text x="25" y="130" class="code-txt">2.5 Flash / Pro</text>
+
+    <!-- OpenAI -->
+    <rect x="15" y="170" width="180" height="85" rx="8" fill="#1e293b" stroke="#334155" />
+    <text x="25" y="195" class="box-title" font-size="13">OpenAILikeAdapter</text>
+    <text x="25" y="212" class="box-sub">Async HTTPX Native</text>
+    <text x="25" y="230" class="code-txt">Groq / Ollama / OpenAI</text>
+
+    <!-- Chaos Mock -->
+    <rect x="15" y="270" width="180" height="185" rx="8" fill="#1e293b" stroke="url(#amberGrad)" stroke-width="1.5" />
+    <text x="25" y="295" class="box-title" font-size="13" fill="#fcd34d">ChaosMockAdapter</text>
+    <text x="25" y="315" class="box-sub">Deterministic Fault Injection:</text>
+    <text x="25" y="335" class="box-sub">&bull; PERFECT (Valid JSON)</text>
+    <text x="25" y="355" class="box-sub">&bull; MARKDOWN_FENCED</text>
+    <text x="25" y="375" class="box-sub">&bull; MALFORMED_SYNTAX</text>
+    <text x="25" y="395" class="box-sub">&bull; SCHEMA_VIOLATION</text>
+    <text x="25" y="415" class="box-sub">&bull; TIMEOUT (20s sleep)</text>
+    <text x="25" y="435" class="box-sub">&bull; INTERRUPTED_STREAM</text>
+  </g>
+
+  <!-- 3-Tier Self-Healing Pipeline -->
+  <g transform="translate(770, 130)">
+    <rect width="390" height="470" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+    <text x="20" y="35" class="box-title" fill="#a5b4fc">3-TIER SELF-HEALING PIPELINE</text>
+    <text x="20" y="52" class="box-sub">Guaranteed Schema-Compliant Artifacts</text>
+
+    <!-- Tier 1 -->
+    <rect x="15" y="70" width="360" height="95" rx="8" fill="#1e293b" stroke="url(#emeraldGrad)" stroke-width="1.5" />
+    <text x="25" y="95" class="box-title" font-size="14" fill="#6ee7b7">Tier 1: Direct Validation (0 ms)</text>
+    <text x="25" y="115" class="box-sub">Strict Pydantic v2 &amp; JSONSchema validation contract.</text>
+    <text x="25" y="135" class="box-sub">Validates EventMetadata, Schedule, ActionItems, MultiChannelCopy.</text>
+    <rect x="260" y="130" width="100" height="22" rx="4" fill="#065f46" />
+    <text x="272" y="145" class="badge-txt" fill="#6ee7b7">Pristine Output</text>
+
+    <!-- Tier 2 -->
+    <rect x="15" y="180" width="360" height="115" rx="8" fill="#1e293b" stroke="url(#amberGrad)" stroke-width="1.5" />
+    <text x="25" y="205" class="box-title" font-size="14" fill="#fcd34d">Tier 2: Deterministic AST &amp; Regex Healer (&lt;2 ms)</text>
+    <text x="25" y="225" class="box-sub">&bull; Strips markdown code fences (```json ... ```) &amp; conversation text</text>
+    <text x="25" y="242" class="box-sub">&bull; Removes trailing commas in arrays/objects ([1, 2,] &rarr; [1, 2])</text>
+    <text x="25" y="259" class="box-sub">&bull; Balances unclosed brackets/braces from premature truncation</text>
+    <text x="25" y="276" class="box-sub">&bull; Evaluates Python-style single-quoted dictionaries via AST</text>
+    <rect x="250" y="260" width="110" height="22" rx="4" fill="#78350f" />
+    <text x="258" y="275" class="badge-txt" fill="#fcd34d">AST Healed ($0)</text>
+
+    <!-- Tier 3 -->
+    <rect x="15" y="310" width="360" height="85" rx="8" fill="#1e293b" stroke="url(#primaryGrad)" stroke-width="1.5" />
+    <text x="25" y="335" class="box-title" font-size="14" fill="#a5b4fc">Tier 3: LLM Self-Healing Reflector Loop</text>
+    <text x="25" y="355" class="box-sub">Formulates targeted error delta prompt with exact Pydantic errors.</text>
+    <text x="25" y="372" class="box-sub">Dispatches 1 emergency correction pass to patch schema violations.</text>
+
+    <!-- Output Deliverable -->
+    <rect x="15" y="410" width="360" height="45" rx="8" fill="#111827" stroke="#38bdf8" />
+    <text x="25" y="435" class="code-txt" fill="#7dd3fc">&check; Validated EventArtifact Deliverable + Granular Telemetry</text>
+  </g>
+
+</svg>

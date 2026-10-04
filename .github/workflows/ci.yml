@@ -1,0 +1,45 @@
+name: PromptOps CI/CD
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test-and-benchmark:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .
+        python -m pip install pytest pytest-asyncio
+
+    - name: Run Test Suite (39 Tests)
+      run: |
+        python -m pytest -v
+
+    - name: Run 50-Case Empirical Benchmark Matrix (200 Runs)
+      run: |
+        python run_benchmark.py
+
+    - name: Verify Documentation & Failure Log Artifacts
+      run: |
+        test -f README.md
+        test -f ARCHITECTURE.md
+        test -f FAILURE_LOG.md
+        test -f AI_USAGE.md
+        test -f DEMO_SCRIPT.md
+        test -f data/benchmark_results.json

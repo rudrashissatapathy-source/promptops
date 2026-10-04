@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptOps | Controlled LLM Generation Platform</title>
+  <meta name="description" content="Provider-agnostic controlled generation platform with AST self-healing, smart policy routing, versioned prompt registry, and empirical regression testing.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>PromptOps</h1>
+          <span class="brand-tag">Controlled Generation Engine v0.1.0</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-tab active" data-tab="tab-studio" id="nav-studio-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+          Dual Comparative Studio
+        </button>
+        <button class="nav-tab" data-tab="tab-registry" id="nav-registry-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Prompt Registry & Diffs
+        </button>
+        <button class="nav-tab" data-tab="tab-benchmark" id="nav-benchmark-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          50-Case Regression Matrix
+        </button>
+        <button class="nav-tab" data-tab="tab-telemetry" id="nav-telemetry-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Telemetry & Economics
+        </button>
+      </nav>
+
+      <div class="header-status">
+        <span class="status-indicator live"></span>
+        <span class="status-text" id="system-status-indicator">Engine Active</span>
+      </div>
+    </header>
+
+    <!-- Main Content Panes -->
+    <main class="app-main">
+      
+      <!-- TAB 1: DUAL COMPARATIVE STUDIO -->
+      <section id="tab-studio" class="tab-pane active">
+        
+        <!-- Input & Controls Bar -->
+        <div class="studio-input-card glass-panel">
+          <div class="input-header">
+            <div class="input-title-group">
+              <span class="badge badge-accent">Input Brief</span>
+              <h2>Messy Instructions & Operational Brief</h2>
+            </div>
+            
+            <div class="sample-chips">
+              <span class="sample-label">Load Test Brief:</span>
+              <button class="chip-btn" data-sample="clean">Clean Summit</button>
+              <button class="chip-btn" data-sample="noisy">Noisy Slack Transcript</button>
+              <button class="chip-btn" data-sample="injection">Adversarial Injection</button>
+              <button class="chip-btn" data-sample="paradox">Constraint Paradox</button>
+            </div>
+          </div>
+
+          <textarea id="brief-input" class="brief-textarea" rows="4" placeholder="Enter unstructured event instructions, rough meeting notes, or messy chat transcripts here..."></textarea>
+          
+          <div class="input-actions-bar">
+            <div class="action-options">
+              <label class="toggle-control">
+                <input type="checkbox" id="cache-toggle" checked>
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">Enable SHA-256 Exact Cache</span>
+              </label>
+
+              <label class="toggle-control">
+                <input type="checkbox" id="stream-toggle" checked>
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">Real-time SSE Streaming</span>
+              </label>
+            </div>
+
+            <button id="run-compare-btn" class="btn btn-primary pulse-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Run Side-by-Side Comparison
+            </button>
+          </div>
+        </div>
+
+        <!-- Dual Comparison Grid -->
+        <div class="comparison-grid">
+          
+          <!-- PANE A -->
+          <div class="comparison-column glass-panel" id="pane-a">
+            <div class="pane-header">
+              <div class="pane-config">
+                <span class="pane-tag">Candidate A</span>
+                <div class="select-group">
+                  <select id="pane-a-prompt" class="control-select">
+                    <option value="v1.0.0">Prompt: v1.0.0 (Zero-Shot Baseline)</option>
+                    <option value="v2.0.0">Prompt: v2.0.0 (Few-Shot Production)</option>
+                  </select>
+                  <select id="pane-a-model" class="control-select">
+                    <option value="mock-fast">Model: Deterministic Fast (120ms)</option>
+                    <option value="mock-heavy">Model: Deterministic Heavy (850ms)</option>
+                    <option value="mock-chaos">Model: Chaos Mock (Malformed)</option>
+                    <option value="gemini-2.5-flash">Model: Gemini 2.5 Flash</option>
+                    <option value="gpt-4o-mini">Model: GPT-4o Mini</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="telemetry-bar" id="pane-a-telemetry">
+                <span class="badge" id="pane-a-status">Ready</span>
+                <span class="metric-pill" id="pane-a-latency">0 ms</span>
+                <span class="metric-pill" id="pane-a-tokens">0 tokens</span>
+                <span class="metric-pill" id="pane-a-cost">$0.00000</span>
+              </div>
+            </div>
+
+            <!-- Self-Healing Alert Notice -->
+            <div class="healing-alert hidden" id="pane-a-healing-alert">
+              <span class="healing-icon">🩹</span>
+              <span class="healing-text" id="pane-a-healing-notes"></span>
+            </div>
+
+            <div class="output-container">
+              <div class="code-header">
+                <span class="code-title">Structured Output</span>
+                <div class="view-toggles">
+                  <button class="view-btn active" data-target="pane-a-formatted">Structured</button>
+                  <button class="view-btn" data-target="pane-a-raw">Raw JSON</button>
+                </div>
+              </div>
+              <div class="formatted-view" id="pane-a-formatted">
+                <div class="placeholder-state">Click "Run Side-by-Side Comparison" to execute candidate A.</div>
+              </div>
+              <pre class="raw-view hidden" id="pane-a-raw"><code></code></pre>
+            </div>
+          </div>
+
+          <!-- PANE B -->
+          <div class="comparison-column glass-panel" id="pane-b">
+            <div class="pane-header">
+              <div class="pane-config">
+                <span class="pane-tag pane-tag-b">Candidate B</span>
+                <div class="select-group">
+                  <select id="pane-b-prompt" class="control-select">
+                    <option value="v2.0.0" selected>Prompt: v2.0.0 (Few-Shot Production)</option>
+                    <option value="v1.0.0">Prompt: v1.0.0 (Zero-Shot Baseline)</option>
+                  </select>
+                  <select id="pane-b-model" class="control-select">
+                    <option value="mock-heavy" selected>Model: Deterministic Heavy (850ms)</option>
+                    <option value="mock-fast">Model: Deterministic Fast (120ms)</option>
+                    <option value="mock-chaos">Model: Chaos Mock (Malformed)</option>
+                    <option value="gemini-2.5-pro">Model: Gemini 2.5 Pro</option>
+                    <option value="gpt-4o">Model: GPT-4o</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="telemetry-bar" id="pane-b-telemetry">
+                <span class="badge" id="pane-b-status">Ready</span>
+                <span class="metric-pill" id="pane-b-latency">0 ms</span>
+                <span class="metric-pill" id="pane-b-tokens">0 tokens</span>
+                <span class="metric-pill" id="pane-b-cost">$0.00000</span>
+              </div>
+            </div>
+
+            <!-- Self-Healing Alert Notice -->
+            <div class="healing-alert hidden" id="pane-b-healing-alert">
+              <span class="healing-icon">🩹</span>
+              <span class="healing-text" id="pane-b-healing-notes"></span>
+            </div>
+
+            <div class="output-container">
+              <div class="code-header">
+                <span class="code-title">Structured Output</span>
+                <div class="view-toggles">
+                  <button class="view-btn active" data-target="pane-b-formatted">Structured</button>
+                  <button class="view-btn" data-target="pane-b-raw">Raw JSON</button>
+                </div>
+              </div>
+              <div class="formatted-view" id="pane-b-formatted">
+                <div class="placeholder-state">Click "Run Side-by-Side Comparison" to execute candidate B.</div>
+              </div>
+              <pre class="raw-view hidden" id="pane-b-raw"><code></code></pre>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Visual Diff Inspector -->
+        <div class="diff-inspector glass-panel">
+          <div class="diff-header">
+            <div class="diff-title-group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg>
+              <h3>Visual JSON & Semantic Diff (Candidate A vs Candidate B)</h3>
+            </div>
+            <span class="diff-legend">
+              <span class="legend-item"><span class="dot dot-removed"></span> Only in Candidate A</span>
+              <span class="legend-item"><span class="dot dot-added"></span> Only in Candidate B</span>
+            </span>
+          </div>
+          <div id="diff-content" class="diff-content-view">
+            <div class="placeholder-state">Run comparison to generate live semantic diff.</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: PROMPT REGISTRY & DIFFS -->
+      <section id="tab-registry" class="tab-pane">
+        <div class="registry-layout">
+          
+          <div class="registry-sidebar glass-panel">
+            <h3>Registered Prompts</h3>
+            <div id="prompt-list" class="prompt-nav-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="registry-viewer glass-panel">
+            <div class="registry-toolbar">
+              <div class="prompt-meta-header">
+                <h2 id="reg-prompt-title">event_brief_synthesizer</h2>
+                <div class="meta-pills" id="reg-meta-pills"></div>
+              </div>
+
+              <div class="diff-selector">
+                <label>Compare Version:</label>
+                <select id="diff-v1-select" class="control-select"><option value="v1.0.0">v1.0.0</option></select>
+                <span>vs</span>
+                <select id="diff-v2-select" class="control-select"><option value="v2.0.0">v2.0.0</option></select>
+                <button id="compute-prompt-diff-btn" class="btn btn-secondary">Compute Diff</button>
+              </div>
+            </div>
+
+            <div class="prompt-text-views">
+              <div class="prompt-section">
+                <h4>System Instructions</h4>
+                <pre class="prompt-pre" id="reg-system-prompt"></pre>
+              </div>
+
+              <div class="prompt-section">
+                <h4>User Template ({variables})</h4>
+                <pre class="prompt-pre" id="reg-user-template"></pre>
+              </div>
+
+              <div class="prompt-section" id="reg-diff-section" style="display: none;">
+                <h4>Unified Version Diff</h4>
+                <pre class="diff-pre" id="reg-diff-output"></pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: 50-CASE REGRESSION MATRIX -->
+      <section id="tab-benchmark" class="tab-pane">
+        <div class="benchmark-header glass-panel">
+          <div class="benchmark-info">
+            <h2>50-Case Empirical Regression Matrix</h2>
+            <p>Evaluates 2 Prompt Versions (v1.0.0 vs v2.0.0) x 2 Models (mock-fast vs mock-heavy) across 5 categorized test sets: Standard Clean, Noisy Transcripts, Adversarial Injections, Contradictory Constraints, and Infrastructure Chaos.</p>
+          </div>
+
+          <div class="benchmark-actions">
+            <button id="run-benchmark-btn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Execute 200-Run Matrix
+            </button>
+          </div>
+        </div>
+
+        <!-- 4-Way Comparison Matrix Cards -->
+        <div class="matrix-cards-grid" id="matrix-cards-grid">
+          <!-- Dynamically populated from benchmark results -->
+        </div>
+
+        <!-- Test Cases Drill-down Table -->
+        <div class="benchmark-table-card glass-panel">
+          <div class="table-header">
+            <h3>Empirical Test Cases & Recovery Logs</h3>
+            <div class="filter-group">
+              <select id="filter-category" class="control-select">
+                <option value="all">All Categories (50 Cases)</option>
+                <option value="standard_clean">Standard Clean (15)</option>
+                <option value="noisy_messy">Noisy Transcripts (15)</option>
+                <option value="adversarial_edge">Adversarial Injections (10)</option>
+                <option value="contradictory_constraints">Contradictory Constraints (5)</option>
+                <option value="infrastructure_chaos">Infrastructure Chaos (5)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" id="benchmark-cases-table">
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Category</th>
+                  <th>Title & Adversarial Trigger</th>
+                  <th>Schema Validity</th>
+                  <th>Self-Healing Tier</th>
+                  <th>Latency</th>
+                  <th>Tokens</th>
+                </tr>
+              </thead>
+              <tbody id="benchmark-cases-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: TELEMETRY & TOKENOMICS -->
+      <section id="tab-telemetry" class="tab-pane">
+        
+        <!-- Summary Cards -->
+        <div class="metrics-row" id="telemetry-summary-cards">
+          <div class="metric-card glass-panel">
+            <span class="metric-card-label">Total Executions</span>
+            <span class="metric-card-value" id="stat-total-runs">0</span>
+          </div>
+          <div class="metric-card glass-panel">
+            <span class="metric-card-label">Schema Validity Rate</span>
+            <span class="metric-card-value text-success" id="stat-validity-rate">0%</span>
+          </div>
+          <div class="metric-card glass-panel">
+            <span class="metric-card-label">Avg P50 Latency</span>
+            <span class="metric-card-value text-accent" id="stat-avg-latency">0 ms</span>
+          </div>
+          <div class="metric-card glass-panel">
+            <span class="metric-card-label">Total Token Spend</span>
+            <span class="metric-card-value" id="stat-total-tokens">0</span>
+          </div>
+          <div class="metric-card glass-panel">
+            <span class="metric-card-label">Total Incurred Cost</span>
+            <span class="metric-card-value text-warning" id="stat-total-cost">$0.00000</span>
+          </div>
+        </div>
+
+        <!-- Telemetry Audit Table -->
+        <div class="audit-table-card glass-panel">
+          <div class="table-header">
+            <h3>Execution Audit Trail</h3>
+            <button id="refresh-telemetry-btn" class="btn btn-secondary">Refresh</button>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Run ID</th>
+                  <th>Prompt</th>
+                  <th>Model</th>
+                  <th>Valid</th>
+                  <th>Repair Tier</th>
+                  <th>Latency</th>
+                  <th>Tokens</th>
+                  <th>Cost</th>
+                  <th>Cache</th>
+                </tr>
+              </thead>
+              <tbody id="telemetry-runs-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

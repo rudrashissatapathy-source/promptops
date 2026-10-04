@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EventArtifact",
+  "description": "Top-level structured generation output for PromptOps. Synthesizes messy instructions into an operational and communication package.",
+  "type": "object",
+  "properties": {
+    "event_metadata": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 3, "maxLength": 150 },
+        "event_type": { "type": "string", "enum": ["conference", "workshop", "webinar", "hackathon", "summit"] },
+        "target_audience": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "estimated_attendees": { "type": "integer", "minimum": 1, "maximum": 500000 },
+        "budget_tier": { "type": "string", "enum": ["low", "medium", "high", "enterprise"] },
+        "primary_objective": { "type": "string", "minLength": 10, "maxLength": 300 }
+      },
+      "required": ["title", "event_type", "target_audience", "estimated_attendees", "budget_tier", "primary_objective"]
+    },
+    "schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "time_slot": { "type": "string", "minLength": 3, "maxLength": 50 },
+          "session_title": { "type": "string", "minLength": 3, "maxLength": 150 },
+          "format": { "type": "string", "enum": ["keynote", "panel", "hands-on", "networking", "lightning_talk"] },
+          "speaker_role": { "type": "string", "minLength": 2, "maxLength": 100 },
+          "deliverables": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["time_slot", "session_title", "format", "speaker_role"]
+      },
+      "minItems": 1
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "minLength": 2, "maxLength": 20 },
+          "task": { "type": "string", "minLength": 5, "maxLength": 200 },
+          "owner_role": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "priority": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "due_relative_days": { "type": "integer", "minimum": -60, "maximum": 365 },
+          "dependencies": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "task", "owner_role", "priority", "due_relative_days"]
+      },
+      "minItems": 1
+    },
+    "multi_channel_copy": {
+      "type": "object",
+      "properties": {
+        "slack_announcement": { "type": "string", "minLength": 10, "maxLength": 1000 },
+        "email_invitation": {
+          "type": "object",
+          "properties": {
+            "subject": { "type": "string", "minLength": 5, "maxLength": 100 },
+            "preview_text": { "type": "string", "minLength": 5, "maxLength": 150 },
+            "body": { "type": "string", "minLength": 30, "maxLength": 2000 }
+          },
+          "required": ["subject", "preview_text", "body"]
+        },
+        "social_x_thread": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 5, "maxLength": 280 },
+          "minItems": 1,
+          "maxItems": 10
+        }
+      },
+      "required": ["slack_announcement", "email_invitation", "social_x_thread"]
+    }
+  },
+  "required": ["event_metadata", "schedule", "action_items", "multi_channel_copy"]
+}

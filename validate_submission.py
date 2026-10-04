@@ -40,6 +40,8 @@ def check_files():
         "prompts/event_brief_v2.yaml",
         "schemas/event_artifact.json",
         "test_cases/50_benchmark_cases.json",
+        "requirements.txt",
+        "streamlit_app.py",
         "run_benchmark.py",
         "demo_walkthrough.py",
         "src/promptops/adapters/base.py",

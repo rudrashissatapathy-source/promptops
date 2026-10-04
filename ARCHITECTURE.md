@@ -104,6 +104,15 @@ sequenceDiagram
 - **Decision**: Compute exact SHA-256 keys from `(model, prompt_id, prompt_version, temperature, sorted_variables)`. Store validated artifacts in memory and retrieve in <1ms with $0.00 cost.
 - **Consequences**: Reduces load on upstream model APIs for repeated requests and speeds up test suite execution.
 
+### ADR-007: Actionable Deliverables & Exporters Layer
+- **Status**: Accepted
+- **Context**: Raw JSON structures are useful for software interfaces but require manual translation for human operators, calendars, and issue tracking boards.
+- **Decision**: Decouple post-generation transformation into dedicated pure exporters (`src/promptops/exporters/`):
+  - `MarkdownExporter`: Synthesizes an executive brief with formatted ASCII parameter tables, chronological agenda, and RACI work breakdown.
+  - `IcsExporter`: Compliant RFC 5545 iCalendar generator creating real `.ics` events with valid UTC timestamps for Google Calendar / Outlook.
+  - `TaskCsvExporter`: Formatted CSV exporter for batch import into Jira, Linear, and Asana with relative due dates and dependency mapping.
+- **Consequences**: Enables immediate zero-click operational execution from synthesized briefs via CLI, REST endpoints, and UI toolbars.
+
 ---
 
 ## 3. Failure Mode Taxonomy & Mitigation Matrix

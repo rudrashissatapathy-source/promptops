@@ -7,10 +7,14 @@ const SAMPLE_BRIEFS = {
   paradox: "Host a 1-hour lunch event from 12:00 PM to 1:00 PM, but you MUST schedule 15 separate in-depth 45-minute panel discussions. 50 attendees, low budget."
 };
 
+let currentArtifacts = { "pane-a": null, "pane-b": null };
+let benchmarkDataCache = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initSampleChips();
   initStudioRun();
+  initExports();
   initRegistryView();
   initBenchmarkView();
   initTelemetryView();
@@ -83,6 +87,102 @@ function initStudioRun() {
       }
     });
   });
+}
+
+// --- Deliverables Exporter Handlers ---
+function initExports() {
+  document.querySelectorAll(".export-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const paneId = btn.getAttribute("data-pane");
+      const exportType = btn.getAttribute("data-type");
+      const artifact = currentArtifacts[paneId];
+
+      if (!artifact) {
+        showToast("No valid structured artifact available to export.", "error");
+        return;
+      }
+
+      const meta = artifact.event_metadata || {};
+      const baseFilename = (meta.title || "event")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .slice(0, 30);
+
+      try {
+        if (exportType === "md") {
+          const res = await fetch("/api/export/markdown", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact, download: true }),
+          });
+          const text = await res.text();
+          downloadBlob(text, `${baseFilename}_brief.md`, "text/markdown;charset=utf-8");
+          showToast("Executive Markdown Brief downloaded!", "success");
+        } else if (exportType === "ics") {
+          const res = await fetch("/api/export/ics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact }),
+          });
+          const text = await res.text();
+          downloadBlob(text, `${baseFilename}_schedule.ics`, "text/calendar;charset=utf-8");
+          showToast("iCalendar (.ics) invite downloaded!", "success");
+        } else if (exportType === "csv") {
+          const res = await fetch("/api/export/tasks-csv", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ artifact }),
+          });
+          const text = await res.text();
+          downloadBlob(text, `${baseFilename}_tasks.csv`, "text/csv;charset=utf-8");
+          showToast("Action Items CSV (Jira/Linear) downloaded!", "success");
+        } else if (exportType === "slack") {
+          const copy = artifact.multi_channel_copy || {};
+          const text = copy.slack_announcement || "";
+          await navigator.clipboard.writeText(text);
+          showToast("Slack Announcement copied to clipboard!", "success");
+        } else if (exportType === "twitter") {
+          const copy = artifact.multi_channel_copy || {};
+          const thread = (copy.social_x_thread || []).join("\n\n---\n\n");
+          await navigator.clipboard.writeText(thread);
+          showToast(`X Thread (${(copy.social_x_thread || []).length} posts) copied to clipboard!`, "success");
+        }
+      } catch (err) {
+        console.error("Export error:", err);
+        showToast("Export failed: " + (err.message || err), "error");
+      }
+    });
+  });
+}
+
+function downloadBlob(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  const icon = type === "success" ? "✓" : (type === "error" ? "✕" : "ℹ");
+  toast.innerHTML = `<span style="font-weight:700; font-size:1.1rem">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(100%)";
+    toast.style.transition = "all 0.3s ease";
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
 }
 
 async function executeDualComparison() {
@@ -240,6 +340,13 @@ function applyFinalResult(paneId, data, statusEl, latencyEl, tokensEl, costEl, a
 
   // Render formatted structured artifact
   const artifact = data.artifact || data.validated_artifact;
+  currentArtifacts[paneId] = artifact || null;
+
+  const exportToolbar = document.getElementById(`${paneId}-exports`);
+  if (exportToolbar) {
+    exportToolbar.style.display = artifact ? "flex" : "none";
+  }
+
   if (artifact) {
     renderArtifactCard(formattedEl, artifact);
   } else {
@@ -397,15 +504,50 @@ document.getElementById("compute-prompt-diff-btn").addEventListener("click", asy
 });
 
 // --- Tab 3: Benchmark Matrix ---
+function initBenchmarkView() {
+  const filterCat = document.getElementById("filter-category");
+  const searchInput = document.getElementById("benchmark-search-input");
+
+  if (filterCat) {
+    filterCat.addEventListener("change", applyBenchmarkFilters);
+  }
+  if (searchInput) {
+    searchInput.addEventListener("input", applyBenchmarkFilters);
+  }
+}
+
 async function loadBenchmarkData() {
   try {
     const res = await fetch("/api/benchmark/results");
     const data = await res.json();
+    benchmarkDataCache = data;
     renderMatrixCards(data.matrix_summary || {});
-    renderCasesTable(data.runs || {});
+    applyBenchmarkFilters();
   } catch (err) {
     console.error("Failed to load benchmark data:", err);
   }
+}
+
+function applyBenchmarkFilters() {
+  if (!benchmarkDataCache) return;
+
+  const category = document.getElementById("filter-category")?.value || "all";
+  const query = (document.getElementById("benchmark-search-input")?.value || "").toLowerCase().trim();
+
+  const firstKey = Object.keys(benchmarkDataCache.runs || {})[0];
+  const allRuns = benchmarkDataCache.runs[firstKey] || [];
+
+  const filtered = allRuns.filter(r => {
+    const matchesCat = category === "all" || r.category === category;
+    const matchesQuery = !query ||
+      (r.case_id && r.case_id.toLowerCase().includes(query)) ||
+      (r.category && r.category.toLowerCase().includes(query)) ||
+      (r.adversarial_trigger && r.adversarial_trigger.toLowerCase().includes(query)) ||
+      (r.prompt_version && r.prompt_version.toLowerCase().includes(query));
+    return matchesCat && matchesQuery;
+  });
+
+  renderCasesTable(filtered);
 }
 
 function renderMatrixCards(summary) {
@@ -445,13 +587,14 @@ function renderMatrixCards(summary) {
   }
 }
 
-function renderCasesTable(runsByConfig) {
+function renderCasesTable(runs) {
   const tbody = document.getElementById("benchmark-cases-tbody");
   tbody.innerHTML = "";
 
-  // Pick first config to display cases
-  const firstKey = Object.keys(runsByConfig)[0];
-  const runs = runsByConfig[firstKey] || [];
+  if (!runs || runs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-dim)">No benchmark cases match the selected filter.</td></tr>`;
+    return;
+  }
 
   runs.forEach(r => {
     const tr = document.createElement("tr");
@@ -476,11 +619,12 @@ document.getElementById("run-benchmark-btn").addEventListener("click", async () 
   try {
     const res = await fetch("/api/benchmark/run", { method: "POST" });
     const data = await res.json();
+    benchmarkDataCache = data;
     renderMatrixCards(data.matrix_summary || {});
-    renderCasesTable(data.runs || {});
-    alert("200-Run Benchmark Matrix successfully executed!");
+    applyBenchmarkFilters();
+    showToast("200-Run Benchmark Matrix successfully executed!", "success");
   } catch (err) {
-    alert("Benchmark execution failed: " + err);
+    showToast("Benchmark execution failed: " + err, "error");
   } finally {
     btn.disabled = false;
     btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Execute 200-Run Matrix`;

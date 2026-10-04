@@ -5,7 +5,7 @@ import json
 import time
 import uuid
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -21,6 +21,8 @@ from promptops.telemetry.cache import GenerationCache
 from promptops.telemetry.logger import TelemetryStore
 from promptops.runner.benchmark import BenchmarkRunner
 from promptops.models.telemetry import RoutingPolicy, RunRecord, RepairTier
+from promptops.models.domain import EventArtifact
+from promptops.exporters import export_to_markdown, export_to_ics, export_tasks_to_csv
 
 router = APIRouter(prefix="/api")
 
@@ -275,3 +277,70 @@ async def get_latest_benchmark_results():
 
     with open(results_file, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+class ExportRequest(BaseModel):
+    artifact: Optional[Dict[str, Any]] = None
+    run_id: Optional[str] = None
+    download: bool = False
+
+
+def _resolve_artifact(req: ExportRequest) -> EventArtifact:
+    """Extract and validate EventArtifact from either payload or run_id."""
+    if req.artifact:
+        return EventArtifact.model_validate(req.artifact)
+    if req.run_id:
+        runs = telemetry_store.get_runs(limit=100)
+        for r in runs:
+            if r.get("run_id") == req.run_id:
+                art = r.get("validated_artifact")
+                if art:
+                    return EventArtifact.model_validate(art)
+                raise HTTPException(status_code=400, detail=f"Run {req.run_id} has no valid structured artifact")
+        raise HTTPException(status_code=404, detail=f"Run {req.run_id} not found in recent telemetry records")
+    raise HTTPException(status_code=400, detail="Must provide either 'artifact' or 'run_id' in request body")
+
+
+@router.post("/export/markdown")
+async def export_markdown_endpoint(req: ExportRequest):
+    """Export EventArtifact to formatted Markdown brief."""
+    artifact = _resolve_artifact(req)
+    md_content = export_to_markdown(artifact)
+
+    if req.download:
+        filename = f"{artifact.event_metadata.title.lower().replace(' ', '_')[:30]}_brief.md"
+        return Response(
+            content=md_content,
+            media_type="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    return {"markdown": md_content}
+
+
+@router.post("/export/ics")
+async def export_ics_endpoint(req: ExportRequest):
+    """Export EventArtifact schedule into RFC 5545 iCalendar (.ics) format."""
+    artifact = _resolve_artifact(req)
+    ics_content = export_to_ics(artifact)
+
+    filename = f"{artifact.event_metadata.title.lower().replace(' ', '_')[:30]}_schedule.ics"
+    return Response(
+        content=ics_content,
+        media_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/export/tasks-csv")
+async def export_tasks_csv_endpoint(req: ExportRequest):
+    """Export EventArtifact action items into Jira/Linear/Asana-compatible CSV."""
+    artifact = _resolve_artifact(req)
+    csv_content = export_tasks_to_csv(artifact)
+
+    filename = f"{artifact.event_metadata.title.lower().replace(' ', '_')[:30]}_tasks.csv"
+    return Response(
+        content=csv_content,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+

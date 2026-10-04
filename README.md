@@ -88,22 +88,45 @@ python -m pip install -e .
 python -m pip install pytest pytest-asyncio
 ```
 
-### 2. Run Automated Test Suite (39 Tests)
+### 2. Run Automated Test Suite (43 Tests)
 ```bash
 python -m pytest -v
+# Or using the built-in CLI:
+promptops test
 ```
 
 ### 3. Run the 50-Case Empirical Regression Benchmark
 ```bash
 python run_benchmark.py
+# Or using the CLI:
+promptops benchmark
 ```
 This executes the 4-way evaluation matrix (200 total runs), prints the comparative performance table, saves raw JSON results to `data/benchmark_results.json`, and updates `FAILURE_LOG.md`.
 
 ### 4. Launch the Interactive Web Studio
 ```bash
+promptops serve
+# Or directly via uvicorn:
 python -m uvicorn promptops.server.app:app --host 127.0.0.1 --port 8000 --reload
 ```
 Open your browser at **`http://127.0.0.1:8000`** to access the live dual-pane comparison studio, prompt diff viewer, regression dashboard, and telemetry audit trail.
+
+### 5. Synthesize Briefs & Export Deliverables via CLI
+```bash
+# Synthesize brief and auto-export Markdown, iCalendar (.ics), and Jira/Linear CSV
+promptops run "Organize a full-day Global AI Developer Summit for 500 senior AI and backend engineers." \
+  --version v2.0.0 \
+  --model mock-fast \
+  --export-md event_brief.md \
+  --export-ics event_schedule.ics \
+  --export-csv action_items.csv
+
+# Inspect semantic prompt differences
+promptops diff --v1 v1.0.0 --v2 v2.0.0
+
+# Export from an existing JSON artifact or telemetry run ID
+promptops export event_artifact.json --format md -o brief.md
+```
 
 ---
 
@@ -124,17 +147,29 @@ Open your browser at **`http://127.0.0.1:8000`** to access the live dual-pane co
 
 ---
 
+## Actionable Deliverables & Exporters Engine
+
+PromptOps does not stop at raw JSON output. It compiles structured artifacts into ready-to-use operational deliverables:
+- **Executive Markdown Brief (`.md`)**: Complete briefing package with formatted parameter tables, chronological agenda, and RACI work breakdown.
+- **RFC 5545 iCalendar (`.ics`)**: Standards-compliant calendar invitations for every session in the schedule, ready to import directly into Google Calendar, Apple Calendar, and Microsoft Outlook.
+- **Project Management CSV (`.csv`)**: Standardized task breakdown compatible with Jira, Linear, and Asana with priorities, assignee roles, relative deadlines, and dependency tracking.
+- **One-Click Communication Clipboard**: Instant export of formatted Slack/Discord announcements and multi-post X/Twitter launch threads.
+
+---
+
 ## Repository Structure
 
 ```
 promptops/
-├── pyproject.toml              # Dependencies and build configuration
+├── pyproject.toml              # Dependencies, package metadata, and CLI scripts
 ├── README.md                   # System documentation and quickstart
 ├── ARCHITECTURE.md             # In-depth architectural decisions and ADRs
 ├── FAILURE_LOG.md              # Empirical failure logs and recovery records
 ├── AI_USAGE.md                 # AI tool usage disclosure and verification log
 ├── DEMO_SCRIPT.md              # 5-8 minute presentation & demo walkthrough
 ├── run_benchmark.py            # CLI 50-case benchmark regression runner
+├── demo_walkthrough.py         # Automated console walkthrough script
+├── validate_submission.py      # Submission pre-flight verification harness
 ├── prompts/                    # Immutable Versioned Prompt Registry
 │   ├── event_brief_v1.yaml     # Baseline zero-shot prompt
 │   └── event_brief_v2.yaml     # Production few-shot prompt with strict rules
@@ -144,6 +179,9 @@ promptops/
 │   └── 50_benchmark_cases.json # 50 categorized fixed test cases
 ├── src/promptops/
 │   ├── adapters/               # BaseModelAdapter, ChaosMock, Gemini, OpenAI
+│   ├── cli.py                  # promptops CLI entrypoint
+│   ├── config.py               # Central configuration and model catalog
+│   ├── exporters/              # Markdown, RFC 5545 iCalendar, and CSV Task Exporters
 │   ├── models/                 # Domain schemas (EventArtifact) & Telemetry
 │   ├── pipeline/               # 3-Tier Self-Healing & AST Healer
 │   ├── registry/               # Versioned PromptStore & Diff Engine
@@ -152,7 +190,7 @@ promptops/
 │   ├── runner/                 # 50-Case Matrix Benchmark Runner
 │   ├── server/                 # FastAPI REST API & SSE Endpoints
 │   └── ui/                     # Glassmorphic Dark Mode Dashboard (HTML/CSS/JS)
-└── tests/                      # 39 Unit and Integration Tests (100% pass)
+└── tests/                      # 43 Unit and Integration Tests (100% pass)
 ```
 
 ---

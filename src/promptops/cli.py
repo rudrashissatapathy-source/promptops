@@ -46,8 +46,12 @@ def cmd_diff(args):
     print(f"V2 Character Length: {diff['v2_length_chars']}")
 
 
+from promptops.exporters import export_to_markdown, export_to_ics, export_tasks_to_csv
+from promptops.telemetry.logger import TelemetryStore
+
+
 def cmd_run(args):
-    """Synthesize a single event brief from the command line."""
+    """Synthesize a single event brief from the command line and optionally export deliverables."""
     async def _run():
         registry = PromptRegistry()
         pipeline = SelfHealingPipeline(enable_llm_reflection=True)
@@ -69,12 +73,91 @@ def cmd_run(args):
         print("=" * 80)
 
         if pipe_res.artifact:
-            print(json.dumps(pipe_res.artifact.model_dump(), indent=2))
+            artifact = pipe_res.artifact
+            print(json.dumps(artifact.model_dump(), indent=2))
+
+            # Handle file exports
+            if getattr(args, "export_md", None):
+                md_path = Path(args.export_md)
+                md_path.write_text(export_to_markdown(artifact), encoding="utf-8")
+                print(f"[EXPORT] Markdown Brief saved to: {md_path.resolve()}")
+
+            if getattr(args, "export_ics", None):
+                ics_path = Path(args.export_ics)
+                ics_path.write_text(export_to_ics(artifact), encoding="utf-8")
+                print(f"[EXPORT] iCalendar schedule saved to: {ics_path.resolve()}")
+
+            if getattr(args, "export_csv", None):
+                csv_path = Path(args.export_csv)
+                csv_path.write_text(export_tasks_to_csv(artifact), encoding="utf-8")
+                print(f"[EXPORT] Jira/Linear tasks CSV saved to: {csv_path.resolve()}")
+
+            if getattr(args, "export_json", None):
+                json_path = Path(args.export_json)
+                json_path.write_text(json.dumps(artifact.model_dump(), indent=2), encoding="utf-8")
+                print(f"[EXPORT] Structured JSON saved to: {json_path.resolve()}")
         else:
             print("Raw Output:")
             print(gen_res.raw_text)
 
     asyncio.run(_run())
+
+
+def cmd_export(args):
+    """Export deliverables from an existing artifact JSON file or telemetry run ID."""
+    artifact_dict = None
+
+    target = Path(args.source)
+    if target.exists() and target.is_file():
+        with open(target, "r", encoding="utf-8") as f:
+            artifact_dict = json.load(f)
+    else:
+        # Search telemetry store by run_id
+        telemetry = TelemetryStore()
+        for run in telemetry.get_runs(limit=200):
+            if run.get("run_id") == args.source:
+                artifact_dict = run.get("validated_artifact")
+                break
+
+    if not artifact_dict:
+        print(f"[ERROR] Could not resolve artifact from source: {args.source}", file=sys.stderr)
+        sys.exit(1)
+
+    fmt = args.format.lower()
+    out = Path(args.out) if args.out else None
+
+    if fmt == "markdown" or fmt == "md":
+        content = export_to_markdown(artifact_dict)
+        if out:
+            out.write_text(content, encoding="utf-8")
+            print(f"[EXPORT] Markdown saved to {out}")
+        else:
+            print(content)
+    elif fmt == "ics":
+        content = export_to_ics(artifact_dict)
+        if out:
+            out.write_text(content, encoding="utf-8")
+            print(f"[EXPORT] iCalendar saved to {out}")
+        else:
+            print(content)
+    elif fmt == "csv":
+        content = export_tasks_to_csv(artifact_dict)
+        if out:
+            out.write_text(content, encoding="utf-8")
+            print(f"[EXPORT] Tasks CSV saved to {out}")
+        else:
+            print(content)
+    else:
+        print(f"[ERROR] Unsupported export format '{fmt}'. Choose from: md, ics, csv", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_test(args):
+    """Execute pytest suite from the CLI."""
+    import pytest
+    print("Running PromptOps automated test suite...\n")
+    exit_code = pytest.main(["-v", "tests"])
+    sys.exit(exit_code)
 
 
 def main():
@@ -92,6 +175,10 @@ def main():
     bench_parser = subparsers.add_parser("benchmark", help="Execute 50-case regression benchmark")
     bench_parser.set_defaults(func=cmd_benchmark)
 
+    # test command
+    test_parser = subparsers.add_parser("test", help="Execute automated test suite")
+    test_parser.set_defaults(func=cmd_test)
+
     # diff command
     diff_parser = subparsers.add_parser("diff", help="Diff two prompt versions")
     diff_parser.add_argument("--prompt-id", default="event_brief_synthesizer", help="Prompt identifier")
@@ -104,7 +191,18 @@ def main():
     run_parser.add_argument("brief", help="Raw unstructured text brief")
     run_parser.add_argument("--version", default="v2.0.0", help="Prompt version")
     run_parser.add_argument("--model", default="mock-fast", help="Model name")
+    run_parser.add_argument("--export-md", dest="export_md", help="Export path for Markdown brief (.md)")
+    run_parser.add_argument("--export-ics", dest="export_ics", help="Export path for iCalendar schedule (.ics)")
+    run_parser.add_argument("--export-csv", dest="export_csv", help="Export path for action items CSV (.csv)")
+    run_parser.add_argument("--export-json", dest="export_json", help="Export path for structured JSON (.json)")
     run_parser.set_defaults(func=cmd_run)
+
+    # export command
+    export_parser = subparsers.add_parser("export", help="Export deliverables from an artifact file or run ID")
+    export_parser.add_argument("source", help="Path to artifact JSON file or telemetry run ID")
+    export_parser.add_argument("--format", "-f", default="md", choices=["md", "markdown", "ics", "csv"], help="Export format")
+    export_parser.add_argument("--out", "-o", help="Output file path (prints to stdout if omitted)")
+    export_parser.set_defaults(func=cmd_export)
 
     args = parser.parse_args()
     args.func(args)

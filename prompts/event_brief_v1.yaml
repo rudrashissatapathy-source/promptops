@@ -1,0 +1,14 @@
+id: "event_brief_synthesizer"
+version: "v1.0.0"
+author: "PromptOps Engineering"
+created_at: "2026-09-01T00:00:00Z"
+description: "Baseline zero-shot event brief synthesizer prompt."
+target_schema: "EventArtifact"
+required_variables:
+  - "event_brief"
+changelog: "Initial zero-shot baseline prompt without chain-of-thought constraint framing."
+system_prompt: |
+  You are an event management assistant. Convert the user's messy event notes into a JSON structure with event_metadata, schedule, action_items, and multi_channel_copy. Output valid JSON.
+user_template: |
+  Please process these event notes:
+  {event_brief}

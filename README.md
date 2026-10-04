@@ -1,5 +1,11 @@
 # PromptOps: Controlled LLM Generation Platform
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=rudrashissatapathy-source/promptops&branch=main&mainModule=streamlit_app.py)
+[![CI/CD](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/ci.yml/badge.svg)](https://github.com/rudrashissatapathy-source/promptops/actions)
+[![24/7 Keep-Alive](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/keep_alive.yml/badge.svg)](https://github.com/rudrashissatapathy-source/promptops/actions/workflows/keep_alive.yml)
+
+> **Live Streamlit Studio:** [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=rudrashissatapathy-source/promptops&branch=main&mainModule=streamlit_app.py) &bull; **Direct App:** `https://promptops.streamlit.app`
+
 > **Build a controlled generation platform, not a single prompt demo.**
 
 PromptOps is an enterprise-grade, provider-agnostic platform engineered to convert messy, unstructured instructions into mathematically reliable, schema-validated operational deliverables. It survives model failure modes, heals malformed syntax, routes across model cost/speed tiers, and measures prompt regressions empirically across a 50-case benchmark matrix.
